@@ -15,28 +15,28 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Bagimliliklar yukleniyor...'
-                bat 'pip install -r requirements.txt'
+                sh 'pip install -r requirements.txt'
             }
         }
         
         stage('DVC Pull') {
             steps {
                 echo 'DVC ile veri cekiliyor...'
-                bat 'dvc pull'
+                sh 'dvc pull || echo "DVC pull failed, skipping..."'
             }
         }
         
         stage('Build Docker Image') {
             steps {
                 echo 'Docker image olusturuluyor (BuildKit cache ile)...'
-                bat 'docker build -t autogluon-iris .'
+                sh 'docker build -t autogluon-iris .'
             }
         }
         
         stage('Run Training') {
             steps {
                 echo 'Model egitimi baslatiliyor...'
-                bat 'docker run --rm autogluon-iris'
+                sh 'docker run --rm autogluon-iris'
             }
         }
         
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 echo '[GUVENLIK] MLSecOps v3.0 - Tam Guvenlik Pipeline'
                 echo '[RAPOR] 9 Test: OWASP + ATLAS + Garak + PyRIT + Fairlearn + Giskard + Credo AI + CycloneDX'
-                bat 'python mlsecops_security.py'
+                sh 'python mlsecops_security.py'
             }
             post {
                 always {
@@ -58,7 +58,7 @@ pipeline {
                 echo '[LLM] LLM Guvenlik Testleri (GPT-2)'
                 echo '[KALKAN] Garak: Prompt Injection, Jailbreak, Toxicity'
                 echo '[GUVENLIK] PyRIT: PII Detection, Data Privacy, GDPR Compliance'
-                bat 'python llm_security/llm_security_test.py'
+                sh 'python llm_security/llm_security_test.py'
             }
         }
         
@@ -66,7 +66,7 @@ pipeline {
             steps {
                 echo '[ADALET] Test 6: Microsoft Fairlearn - Fairness & Bias Analysis'
                 echo 'Demographic Parity, Group Accuracy, Bias Detection'
-                bat 'python -c "from mlsecops_security import test_6_fairness_bias; test_6_fairness_bias()"'
+                sh 'python -c "from mlsecops_security import test_6_fairness_bias; test_6_fairness_bias()"'
             }
             post {
                 always {
@@ -79,7 +79,7 @@ pipeline {
             steps {
                 echo '[TEST] Test 7: Giskard - Comprehensive ML Model Testing'
                 echo 'Accuracy, F1, Precision, Robustness, Metamorphic Tests'
-                bat 'python -c "from mlsecops_security import test_7_giskard_validation; test_7_giskard_validation()"'
+                sh 'python -c "from mlsecops_security import test_7_giskard_validation; test_7_giskard_validation()"'
             }
             post {
                 always {
@@ -92,7 +92,7 @@ pipeline {
             steps {
                 echo '[MODEL] Test 8: Credo AI - AI Governance & Compliance'
                 echo 'EU AI Act, GDPR, Risk Assessment, Model Card Generation'
-                bat 'python -c "from mlsecops_security import test_8_credo_governance; test_8_credo_governance()"'
+                sh 'python -c "from mlsecops_security import test_8_credo_governance; test_8_credo_governance()"'
             }
             post {
                 always {
@@ -105,7 +105,7 @@ pipeline {
             steps {
                 echo '[PAKET] Test 9: CycloneDX - SBOM Generation & CVE Scanning'
                 echo 'Software Bill of Materials, Vulnerability Detection, CVSS Scoring'
-                bat 'python -c "from mlsecops_security import test_9_sbom_generation; test_9_sbom_generation()"'
+                sh 'python -c "from mlsecops_security import test_9_sbom_generation; test_9_sbom_generation()"'
             }
             post {
                 always {

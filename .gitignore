@@ -1,46 +1,45 @@
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
-env/
-ENV/
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# AutoGluon
-autogluon_models/
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+.env
 
 # MLflow
+mlflow.db
 mlruns/
+.trash/
+
+# Autogluon
+AutogluonModels/
+autogluon_models/
+
+# VS Code
+.vscode/
 
 # DVC
-.dvc/cache
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Data (büyük dosyalar)
-*.csv
-!data/iris.csv
-
-# Temporary files
-*.tmp
-*.bak
+/data/
