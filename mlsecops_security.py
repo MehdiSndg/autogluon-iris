@@ -1330,6 +1330,10 @@ def run_mlsecops_pipeline():
         for filename, desc in artifacts:
             if os.path.exists(filename):
                 print(f"  [OK] {filename} - {desc}")
+                try:
+                    mlflow.log_artifact(filename)
+                except Exception as e:
+                    print(f"  [UYARI] MLflow loglama hatas (Artifact): {e}")
             else:
                 print(f"  [SKIP] {filename} - (not generated)")
         
