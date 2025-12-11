@@ -49,6 +49,8 @@ pipeline {
                         sh 'docker cp runner:/app/credo_model_card.md . || true'
                         sh 'docker cp runner:/app/sbom.json . || true'
                         sh 'docker cp runner:/app/vulnerability_report.json . || true'
+                        sh 'docker cp runner:/app/mlflow.db . || true'
+                        sh 'docker cp runner:/app/mlruns . || true'
                         
                         echo 'Temizlik yapiliyor...'
                         sh 'docker rm -f runner'
