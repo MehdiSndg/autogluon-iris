@@ -22,40 +22,48 @@ pipeline {
             }
         }
         
-        stage('Run Pipeline (Train & Secure)') {
+        stage('Setup Container') {
             steps {
                 script {
-                    try {
-                        echo 'Pipeline container icinde baslatiliyor...'
-                        // Remove old container if exists
-                        sh 'docker rm -f runner || true'
-                        
-                        // Run training and security checks in the SAME container sequentially
-                        // keeping state (models) between steps.
-                        // No volume mounts to avoid DinD path issues.
-                        sh '''
-                            docker run --name runner autogluon-iris /bin/sh -c " \
-                                echo '--- 1. Training Model ---' && \
-                                python train.py && \
-                                echo '--- 2. Security Audit ---' && \
-                                python mlsecops_security.py \
-                            "
-                        '''
-                    } finally {
-                        echo 'Artifacts kopyalaniyor...'
-                        // Copy reports out of the container even if it failed midway
-                        sh 'docker cp runner:/app/fairness_report.html . || true'
-                        sh 'docker cp runner:/app/giskard_report.html . || true'
-                        sh 'docker cp runner:/app/credo_model_card.md . || true'
-                        sh 'docker cp runner:/app/sbom.json . || true'
-                        sh 'docker cp runner:/app/vulnerability_report.json . || true'
-                        sh 'docker cp runner:/app/mlflow.db . || true'
-                        sh 'docker cp runner:/app/mlruns . || true'
-                        
-                        echo 'Temizlik yapiliyor...'
-                        sh 'docker rm -f runner'
-                    }
+                    echo 'Pipeline container baslatiliyor...'
+                    sh 'docker rm -f runner || true'
+                    // Start container in background (detached)
+                    sh 'docker run -d --name runner --entrypoint tail autogluon-iris -f /dev/null'
                 }
+            }
+        }
+
+        stage('Training Model') {
+            steps {
+                echo '--- 1. Training Model ---'
+                sh 'docker exec runner python train.py'
+            }
+        }
+
+        stage('Security Audit') {
+            steps {
+                echo '--- 2. Security Audit ---'
+                sh 'docker exec runner python mlsecops_security.py'
+            }
+        }
+
+        stage('Collect Artifacts') {
+            steps {
+                echo 'Artifacts kopyalaniyor...'
+                sh 'docker cp runner:/app/fairness_report.html . || true'
+                sh 'docker cp runner:/app/giskard_report.html . || true'
+                sh 'docker cp runner:/app/credo_model_card.md . || true'
+                sh 'docker cp runner:/app/sbom.json . || true'
+                sh 'docker cp runner:/app/vulnerability_report.json . || true'
+                sh 'docker cp runner:/app/mlflow.db . || true'
+                sh 'docker cp runner:/app/mlruns . || true'
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                echo 'Temizlik yapiliyor...'
+                sh 'docker rm -f runner || true'
             }
             post {
                 always {
