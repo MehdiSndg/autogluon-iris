@@ -19,6 +19,8 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 # Proje dosyalarını kopyala
 COPY . .
 
-# Modeli eğit
-CMD ["python", "train.py"]
+# Generate dataset during build
+RUN python dataset_creator.py
 
+# Default command
+CMD ["python", "train.py"]
