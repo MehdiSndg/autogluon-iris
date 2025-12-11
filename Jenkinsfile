@@ -59,7 +59,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '*.html, *.md, *.json', allowEmptyArchive: true
+                    archiveArtifacts artifacts: '*.html, *.md, *.json, mlflow.db, mlruns/**/*', allowEmptyArchive: true
                 }
             }
         }
